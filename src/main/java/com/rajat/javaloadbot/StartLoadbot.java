@@ -1,6 +1,7 @@
 package com.rajat.javaloadbot;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
@@ -13,6 +14,9 @@ import org.web3j.utils.Convert.Unit;
 
 @Service
 public class StartLoadbot {
+
+	@Value("${KEYFILE}")
+	private String keyFile;
 
 	@Autowired
 	SendTransaction sendTransaction;
@@ -40,7 +44,7 @@ public class StartLoadbot {
 	public Credentials getSenderAccount() {
 		try {
 			String walletPassword = "Rajat123";
-            String walletPath = "/home/rajat/geth-git/test-chain-dir/keystore/UTC--2021-11-23T18-04-01.548448380Z--0766fd8a11485bb8c045919ac5a07c51b3d1696b";
+            String walletPath = "/home/rajat/geth-git/test-chain-dir/keystore/" + keyFile;
             // Decrypt and open the wallet into a Credential object
             Credentials credentials = WalletUtils.loadCredentials(walletPassword, walletPath);
 			System.out.println("Sender Account address: " + credentials.getAddress());
