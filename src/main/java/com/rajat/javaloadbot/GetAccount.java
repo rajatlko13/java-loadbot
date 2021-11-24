@@ -1,6 +1,6 @@
 package com.rajat.javaloadbot;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
@@ -10,10 +10,10 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Convert;
 import org.web3j.utils.Convert.Unit;
 
-@Component
-class GetAccount {
+@Service
+public class GetAccount {
 
-    public static Credentials getAccount() {
+    public Credentials getAccount() {
         try {
             String password = "Rajat123";
             String mnemonic = "envelope direct allow creek endless detect mountain squeeze mass welcome virtual sample";

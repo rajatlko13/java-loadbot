@@ -1,5 +1,6 @@
 package com.rajat.javaloadbot.controller;
 
+import com.rajat.javaloadbot.GetAccount;
 import com.rajat.javaloadbot.StartLoadbot;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +13,17 @@ public class MainController {
     @Autowired
     StartLoadbot startLoadbot;
 
+    @Autowired
+    GetAccount getAccount;
+
     @GetMapping("/")
     public void test() throws Exception {
         startLoadbot.test1();
+    }
+
+    @GetMapping("/sender")
+    public void getSenderAccount() throws Exception {
+        getAccount.getAccount();
     }
 
     @GetMapping("/start")
