@@ -1,5 +1,6 @@
 package com.rajat.javaloadbot;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
@@ -13,6 +14,9 @@ import org.web3j.utils.Convert.Unit;
 @Service
 public class GetAccount {
 
+    @Value("${KEYFILE}")
+	private String keyFile;
+    
     public Credentials getAccount() {
         try {
             String password = "Rajat123";
@@ -30,7 +34,7 @@ public class GetAccount {
             // // Load the wallet for the derived key
             // Credentials credentials = Credentials.create(derivedKeyPair);
             String walletPassword = "Rajat123";
-            String walletPath = "/home/rajat/geth-git/test-chain-dir/keystore/UTC--2021-11-23T18-04-01.548448380Z--0766fd8a11485bb8c045919ac5a07c51b3d1696b";
+            String walletPath = keyFile;
             // Decrypt and open the wallet into a Credential object
             Credentials credentials = WalletUtils.loadCredentials(walletPassword, walletPath);
             System.out.println("Account: "+credentials.getAddress());
