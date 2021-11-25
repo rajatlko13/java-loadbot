@@ -30,21 +30,21 @@ public class StartLoadbot {
             Credentials credentials = getSenderAccount();
             
 			// SendTransaction sendTransaction = new SendTransaction();
-			for (int i = 76000; i < 96000; i++) {
+			for (int i = 1; i < 1000; i++) {
 				System.out.println("i="+i);
 				// service.execute(new SendTransaction(i, credentials));
 				sendTransaction.sendTransactionFunc(i, credentials);
 			}
 
         } catch (Exception e) {
-            System.out.println("Error in sendTransaction(): "+e);
+            System.out.println("Error in startLoadbot(): "+e);
         }
     }
 
 	public Credentials getSenderAccount() {
 		try {
 			String walletPassword = "Rajat123";
-            String walletPath = "/home/rajat/geth-git/test-chain-dir/keystore/" + keyFile;
+            String walletPath = keyFile;
             // Decrypt and open the wallet into a Credential object
             Credentials credentials = WalletUtils.loadCredentials(walletPassword, walletPath);
 			System.out.println("Sender Account address: " + credentials.getAddress());
