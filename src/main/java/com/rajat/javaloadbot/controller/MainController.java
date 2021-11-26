@@ -31,4 +31,14 @@ public class MainController {
         startLoadbot.startLoadbot();
     }
 
+    @GetMapping("/fund")
+    public void preFundAccounts() throws Exception {
+        startLoadbot.preFundAccounts();
+    }
+
+    @GetMapping("/multiple")
+    public void startMultipleTransaction() throws Exception {
+        startLoadbot.startMultipleTransaction();
+    }
+
 }

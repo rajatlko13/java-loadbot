@@ -1,16 +1,25 @@
 package com.rajat.javaloadbot;
 
+import java.math.BigInteger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.MnemonicUtils;
+import org.web3j.crypto.RawTransaction;
+import org.web3j.crypto.TransactionEncoder;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Convert;
 import org.web3j.utils.Convert.Unit;
+import org.web3j.utils.Numeric;
 
 @Service
 public class StartLoadbot {
@@ -30,7 +39,7 @@ public class StartLoadbot {
             Credentials credentials = getSenderAccount();
             
 			// SendTransaction sendTransaction = new SendTransaction();
-			for (int i = 1; i < 1000; i++) {
+			for (int i = 0; i < 2; i++) {
 				System.out.println("i="+i);
 				// service.execute(new SendTransaction(i, credentials));
 				sendTransaction.sendTransactionFunc(i, credentials);
@@ -41,6 +50,7 @@ public class StartLoadbot {
         }
     }
 
+	// Fetches the main sender accoutn that is pre-funded in geth
 	public Credentials getSenderAccount() {
 		try {
 			String walletPassword = "Rajat123";
@@ -55,6 +65,107 @@ public class StartLoadbot {
 		} catch (Exception e) {
 			System.out.println("Error in getSenderAccount(): "+e);
 			return null;
+		}
+	}
+
+	public void preFundAccounts() {
+        try {
+			Credentials mainSenderCredentials = getSenderAccount();
+			for (int i = 0; i < 4; i++) {
+				Credentials senderCredentials = getNewAccount(i);
+				fundNewAccount(senderCredentials.getAddress(), i, mainSenderCredentials);
+			}
+        } catch (Exception e) {
+            System.out.println("Error in startMultipleTransaction(): "+e);
+        }
+    }
+
+    public void startMultipleTransaction() {
+        try {
+			Credentials[] senderCredentials = getMultipleSenders(4);
+			sendTransaction.sendMultipleTransaction(senderCredentials);
+
+        } catch (Exception e) {
+            System.out.println("Error in startMultipleTransaction(): "+e);
+        }
+    }
+
+	// creates multiple sender accounts and pre-funds them
+	public Credentials[] getMultipleSenders(int n) {
+		try {
+			Credentials[] senderCredentials = new Credentials[n];
+            // Credentials mainSenderCredentials = getSenderAccount();
+
+			for (int i = 0; i < senderCredentials.length; i++) {
+				senderCredentials[i] = getNewAccount(i);
+				// fundNewAccount(senderCredentials[i].getAddress(), i, mainSenderCredentials);
+			}
+			return senderCredentials;
+		} catch (Exception e) {
+			System.out.println("Error in getSenderAccount(): "+e);
+			return null;
+		}
+	}
+
+	public Credentials getNewAccount(int i) {
+		try {
+			String password = "Rajat123";
+            String mnemonic = "envelope direct allow creek endless detect mountain squeeze mass welcome virtual sample";
+
+            //Derivation path wanted: // m/44'/60'/0'/i
+            int[] derivationPath = {44 | Bip32ECKeyPair.HARDENED_BIT, 60 | Bip32ECKeyPair.HARDENED_BIT, 0 | Bip32ECKeyPair.HARDENED_BIT, 0, i};
+
+            // Generate a BIP32 master keypair from the mnemonic phrase
+            Bip32ECKeyPair masterKeypair = Bip32ECKeyPair.generateKeyPair(MnemonicUtils.generateSeed(mnemonic, password));
+
+            // Derived the key using the derivation path
+            Bip32ECKeyPair  derivedKeyPair = Bip32ECKeyPair.deriveKeyPair(masterKeypair, derivationPath);
+
+            // Load the wallet for the derived key
+            Credentials credentials = Credentials.create(derivedKeyPair);
+			System.out.println("New Sender "+i+" : "+credentials.getAddress());
+			return credentials;
+
+		} catch (Exception e) {
+			System.out.println("Error in getNewAccount(): "+e);
+			return null;
+		}
+	}
+
+	public void fundNewAccount(String recipientAddress, int i, Credentials mainCredentials) {
+		try {
+			// System.out.println("Thread: "+Thread.currentThread().getName());
+			// Get the latest nonce of current account
+			// EthGetTransactionCount ethGetTransactionCount = web3
+			// 		.ethGetTransactionCount(mainCredentials.getAddress(), DefaultBlockParameterName.LATEST).send();
+			// BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+			BigInteger nonce = BigInteger.valueOf(i);
+			System.out.println("Nonce: "+nonce.toString());
+			
+			// Value to transfer (in wei)
+			String amountToBeSent="10000000000000000000000000000000000000000000000000000000000000";
+			BigInteger value = new BigInteger(amountToBeSent);
+
+			// Gas Parameter
+			BigInteger gasLimit = BigInteger.valueOf(21000);
+			BigInteger gasPrice = Convert.toWei("1", Unit.GWEI).toBigInteger();
+
+			// Prepare the rawTransaction
+			RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit,
+					recipientAddress, value);
+
+			long chainId = 1212;
+			// Sign the transaction
+			byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, mainCredentials);
+			String hexValue = Numeric.toHexString(signedMessage);
+
+			// Send transaction
+			EthSendTransaction ethSendTransaction = web3.ethSendRawTransaction(hexValue).send();
+			String transactionHash = ethSendTransaction.getTransactionHash();
+			System.out.println("transactionHash "+i+" : "+ transactionHash);
+
+		} catch (Exception e) {
+			System.out.println("Error in fundNewAccount(): "+e);
 		}
 	}
 

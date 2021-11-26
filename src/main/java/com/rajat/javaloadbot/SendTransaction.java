@@ -101,6 +101,21 @@ class SendTransaction implements Runnable {
 			System.out.println("Error in sendTransaction(): "+e);
 		}
 	}
+
+	@Async
+	public void sendMultipleTransaction(Credentials[] senderCredentials) {
+        try {
+			for (int i = 0; i < 10000; i++) {
+				for (int j = 0; j < senderCredentials.length; j++) {
+					System.out.println("i="+i);
+					sendTransactionFunc(i, senderCredentials[j]);
+				}
+			}
+
+        } catch (Exception e) {
+            System.out.println("Error in startMultipleTransaction(): "+e);
+        }
+    }
     
 	@Async
 	public void test2(int i) throws Exception {
