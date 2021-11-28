@@ -71,7 +71,7 @@ public class StartLoadbot {
 	public void preFundAccounts() {
         try {
 			Credentials mainSenderCredentials = getSenderAccount();
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 1000; i++) {
 				Credentials senderCredentials = getNewAccount(i);
 				fundNewAccount(senderCredentials.getAddress(), i, mainSenderCredentials);
 			}
@@ -82,8 +82,15 @@ public class StartLoadbot {
 
     public void startMultipleTransaction() {
         try {
-			Credentials[] senderCredentials = getMultipleSenders(4);
-			sendTransaction.sendMultipleTransaction(senderCredentials);
+			Credentials[] senderCredentials = getMultipleSenders(1000);
+			int nonce[] = new int[1000];
+			for (int i = 0; i < nonce.length; i++) {
+				nonce[i] = 0;
+			}
+
+			for (int i = 0; i < 1000; i++) {
+				sendTransaction.sendMultipleTransaction(senderCredentials, i);
+			}
 
         } catch (Exception e) {
             System.out.println("Error in startMultipleTransaction(): "+e);

@@ -2,6 +2,8 @@ package com.rajat.javaloadbot.controller;
 
 import com.rajat.javaloadbot.GetAccount;
 import com.rajat.javaloadbot.StartLoadbot;
+import com.rajat.javaloadbot.TransactionCount;
+import com.rajat.javaloadbot.DTO.TransactionCountResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,9 @@ public class MainController {
 
     @Autowired
     GetAccount getAccount;
+
+    @Autowired
+    TransactionCount transactionCount;
 
     @GetMapping("/")
     public void test() throws Exception {
@@ -41,4 +46,8 @@ public class MainController {
         startLoadbot.startMultipleTransaction();
     }
 
+    @GetMapping("/total")
+    public TransactionCountResponse getTransactionsCount() {
+        return transactionCount.getTransactionsCount();
+    }
 }

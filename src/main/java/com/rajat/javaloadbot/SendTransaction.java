@@ -1,7 +1,11 @@
 package com.rajat.javaloadbot;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Bip32ECKeyPair;
@@ -17,9 +21,12 @@ import org.web3j.utils.Convert.Unit;
 import org.web3j.utils.Numeric;
 
 @Service
-class SendTransaction implements Runnable {
+class SendTransaction {
     
     static Web3j web3 = Web3j.build(new HttpService("http://127.0.0.1:8545"));//RPC SERVER
+
+	@Autowired
+	CompleteTransaction completeTransaction;
     
     public String getRecipientAddress(int i) {
 		try {
@@ -101,17 +108,18 @@ class SendTransaction implements Runnable {
 			System.out.println("Error in sendTransaction(): "+e);
 		}
 	}
-
-	@Async
-	public void sendMultipleTransaction(Credentials[] senderCredentials) {
+	
+	public void sendMultipleTransaction(Credentials[] senderCredentials, int i) {
         try {
-			for (int i = 0; i < 10000; i++) {
-				for (int j = 0; j < senderCredentials.length; j++) {
-					System.out.println("i="+i);
-					sendTransactionFunc(i, senderCredentials[j]);
-				}
+			List<CompletableFuture<Integer>> futureResultList1 = new ArrayList<CompletableFuture<Integer>>();
+			for (int j = 0; j < senderCredentials.length; j++) {
+				CompletableFuture<Integer> res1 = completeTransaction.sendTransactionFunc(i, j, senderCredentials[j]);
+				futureResultList1.add(res1);
 			}
 
+			CompletableFuture[] futureResultArray1 = futureResultList1.toArray(new CompletableFuture[futureResultList1.size()]);
+			CompletableFuture<Void> combinedFuture1 = CompletableFuture.allOf(futureResultArray1);
+			// sendTransactionFunc(i, senderCredentials[j]);
         } catch (Exception e) {
             System.out.println("Error in startMultipleTransaction(): "+e);
         }
