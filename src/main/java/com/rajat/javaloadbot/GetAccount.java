@@ -16,11 +16,20 @@ public class GetAccount {
 
     @Value("${KEYFILE}")
 	private String keyFile;
+
+    @Value("${RPC_SERVER}")
+	private String RPC_SERVER;
+
+	@Value("${MNEMONIC}")
+	private String MNEMONIC;
+
+    @Value("${PRIVATE_KEY}")
+	private String PRIVATE_KEY;
     
     public Credentials getAccount() {
         try {
             String password = "Rajat123";
-            String mnemonic = "envelope direct allow creek endless detect mountain squeeze mass welcome virtual sample";
+            String mnemonic = MNEMONIC;
 
             // //Derivation path wanted: // m/44'/60'/0'/0
             // int[] derivationPath = {44 | Bip32ECKeyPair.HARDENED_BIT, 60 | Bip32ECKeyPair.HARDENED_BIT, 0 | Bip32ECKeyPair.HARDENED_BIT, 0,0};
@@ -36,10 +45,13 @@ public class GetAccount {
             String walletPassword = "Rajat123";
             String walletPath = keyFile;
             // Decrypt and open the wallet into a Credential object
-            Credentials credentials = WalletUtils.loadCredentials(walletPassword, walletPath);
+            // Credentials credentials = WalletUtils.loadCredentials(walletPassword, walletPath);
+            // Credentials credentials = WalletUtils.loadBip39Credentials(walletPassword, "truck gallery select material claim elephant pear dog knock kitchen runway juice");
+            String pk = PRIVATE_KEY;
+            Credentials credentials = Credentials.create(pk);
             System.out.println("Account: "+credentials.getAddress());
             
-            Web3j web3 = Web3j.build(new HttpService("http://127.0.0.1:8545"));//RPC SERVER
+            Web3j web3 = Web3j.build(new HttpService(RPC_SERVER));//RPC SERVER
             EthGetBalance ethGetBalance = web3
 					.ethGetBalance(credentials.getAddress(), DefaultBlockParameterName.LATEST)
 					.sendAsync().get();

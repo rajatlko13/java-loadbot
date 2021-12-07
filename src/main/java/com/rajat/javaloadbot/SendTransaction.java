@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Bip32ECKeyPair;
@@ -22,6 +23,15 @@ import org.web3j.utils.Numeric;
 
 @Service
 class SendTransaction {
+
+	@Value("${RPC_SERVER}")
+	private String RPC_SERVER;
+
+	@Value("${MNEMONIC}")
+	private String MNEMONIC;
+
+	@Value("${CHAIN_ID}")
+	private String CHAIN_ID;
     
     static Web3j web3 = Web3j.build(new HttpService("http://127.0.0.1:8545"));//RPC SERVER
 
@@ -31,7 +41,7 @@ class SendTransaction {
     public String getRecipientAddress(int i) {
 		try {
 			String password = "Rajat123";
-            String mnemonic = "envelope direct allow creek endless detect mountain squeeze mass welcome virtual sample";
+            String mnemonic = MNEMONIC;
 
             //Derivation path wanted: // m/44'/60'/0'/i
             int[] derivationPath = {44 | Bip32ECKeyPair.HARDENED_BIT, 60 | Bip32ECKeyPair.HARDENED_BIT, 0 | Bip32ECKeyPair.HARDENED_BIT, 0, i};
@@ -72,13 +82,19 @@ class SendTransaction {
 
 			// Gas Parameter
 			BigInteger gasLimit = BigInteger.valueOf(21000);
-			BigInteger gasPrice = Convert.toWei("1", Unit.GWEI).toBigInteger();
+			BigInteger gasPrice = Convert.toWei("20", Unit.WEI).toBigInteger();
+			// BigInteger gasPrice = BigInteger.valueOf(10);
 
 			// Prepare the rawTransaction
-			RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit,
-					recipientAddress, value);
+			// RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit,
+			// 		recipientAddress, value);
+			
+			// BigInteger maxPriorityFeePerGas = Convert.toWei("2", Unit.WEI).toBigInteger();
+			// BigInteger maxFeePerGas = Convert.toWei("10", Unit.WEI).toBigInteger();
+			long chainId = Long.parseLong(CHAIN_ID);
+			RawTransaction rawTransaction = RawTransaction.createEtherTransaction(chainId , nonce, gasLimit,
+					recipientAddress, value, BigInteger.valueOf(2), BigInteger.valueOf(100));
 
-			long chainId = 1212;
 			// Sign the transaction
 			byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials);
 			String hexValue = Numeric.toHexString(signedMessage);
@@ -87,6 +103,18 @@ class SendTransaction {
 			EthSendTransaction ethSendTransaction = web3.ethSendRawTransaction(hexValue).send();
 			String transactionHash = ethSendTransaction.getTransactionHash();
 			System.out.println("transactionHash "+i+" : "+ transactionHash);
+
+			// TransactionReceipt transactionReceipt = Transfer.sendFundsEIP1559(
+			// 					web3, 
+			// 					credentials,
+			// 					recipientAddress, //toAddress
+			// 					BigDecimal.valueOf(1), //value
+			// 					Convert.Unit.WEI, //unit
+			// 					BigInteger.valueOf(21000), //gasLimit
+			// 					BigInteger.valueOf(3),//maxPriorityFeePerGas
+			// 					BigInteger.valueOf(10)//maxFeePerGas
+			// 				).send();
+			// System.out.println("Transaction Hash: "+ transactionReceipt.getTransactionHash());
 
 			// Wait for transaction to be mined
 			// Optional<TransactionReceipt> transactionReceipt = null;

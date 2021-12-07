@@ -11,7 +11,6 @@ import org.web3j.crypto.Credentials;
 import org.web3j.crypto.MnemonicUtils;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
-import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
@@ -27,6 +26,15 @@ public class StartLoadbot {
 	@Value("${KEYFILE}")
 	private String keyFile;
 
+	@Value("${RPC_SERVER}")
+	private String RPC_SERVER;
+
+	@Value("${MNEMONIC}")
+	private String MNEMONIC;
+
+	@Value("${PRIVATE_KEY}")
+	private String PRIVATE_KEY;
+
 	@Autowired
 	SendTransaction sendTransaction;
 
@@ -37,9 +45,14 @@ public class StartLoadbot {
         try {
 			// ExecutorService service = Executors.newFixedThreadPool(8);
             Credentials credentials = getSenderAccount();
+
+			EthGetTransactionCount ethGetTransactionCount = web3
+					.ethGetTransactionCount(credentials.getAddress(), DefaultBlockParameterName.LATEST).send();
+			BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+			int j = nonce.intValue();
             
 			// SendTransaction sendTransaction = new SendTransaction();
-			for (int i = 0; i < 2; i++) {
+			for (int i = j; i < j+1000000; i++) {
 				System.out.println("i="+i);
 				// service.execute(new SendTransaction(i, credentials));
 				sendTransaction.sendTransactionFunc(i, credentials);
@@ -56,7 +69,10 @@ public class StartLoadbot {
 			String walletPassword = "Rajat123";
             String walletPath = keyFile;
             // Decrypt and open the wallet into a Credential object
-            Credentials credentials = WalletUtils.loadCredentials(walletPassword, walletPath);
+            // Credentials credentials = WalletUtils.loadCredentials(walletPassword, walletPath);
+			// Credentials credentials = WalletUtils.loadBip39Credentials(walletPassword, "truck gallery select material claim elephant pear dog knock kitchen runway juice");
+			String pk = PRIVATE_KEY;
+            Credentials credentials = Credentials.create(pk);
 			System.out.println("Sender Account address: " + credentials.getAddress());
 			System.out.println("Sender Balance: "
 					+ Convert.fromWei(web3.ethGetBalance(credentials.getAddress(), DefaultBlockParameterName.LATEST)
@@ -88,7 +104,7 @@ public class StartLoadbot {
 				nonce[i] = 0;
 			}
 
-			for (int i = 0; i < 1000; i++) {
+			for (int i = 0; i < 10000; i++) {
 				sendTransaction.sendMultipleTransaction(senderCredentials, i);
 			}
 
