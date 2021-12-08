@@ -33,7 +33,7 @@ class SendTransaction {
 	@Value("${CHAIN_ID}")
 	private String CHAIN_ID;
     
-    static Web3j web3 = Web3j.build(new HttpService("http://127.0.0.1:8545"));//RPC SERVER
+    static Web3j web3 = Web3j.build(new HttpService("http://3.94.19.25:9545"));//RPC SERVER
 
 	@Autowired
 	CompleteTransaction completeTransaction;
@@ -89,13 +89,13 @@ class SendTransaction {
 			// RawTransaction rawTransaction = RawTransaction.createEtherTransaction(nonce, gasPrice, gasLimit,
 			// 		recipientAddress, value);
 			
-			// BigInteger maxPriorityFeePerGas = Convert.toWei("2", Unit.WEI).toBigInteger();
-			// BigInteger maxFeePerGas = Convert.toWei("10", Unit.WEI).toBigInteger();
+			BigInteger maxPriorityFeePerGas = Convert.toWei("2", Unit.WEI).toBigInteger();
+			BigInteger maxFeePerGas = Convert.toWei("10", Unit.WEI).toBigInteger();
 			long chainId = Long.parseLong(CHAIN_ID);
 			RawTransaction rawTransaction = RawTransaction.createEtherTransaction(chainId , nonce, gasLimit,
-					recipientAddress, value, BigInteger.valueOf(2), BigInteger.valueOf(100));
+					recipientAddress, value, BigInteger.valueOf(0), BigInteger.valueOf(10000));
 
-			// Sign the transaction
+			// // Sign the transaction
 			byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, chainId, credentials);
 			String hexValue = Numeric.toHexString(signedMessage);
 

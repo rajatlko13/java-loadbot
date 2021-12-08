@@ -38,7 +38,7 @@ public class StartLoadbot {
 	@Autowired
 	SendTransaction sendTransaction;
 
-	static Web3j web3 = Web3j.build(new HttpService("http://127.0.0.1:8545"));//RPC SERVER
+	static Web3j web3 = Web3j.build(new HttpService("http://3.94.19.25:9545"));//RPC SERVER
 
 	@Async
     public void startLoadbot() {
@@ -52,7 +52,7 @@ public class StartLoadbot {
 			int j = nonce.intValue();
             
 			// SendTransaction sendTransaction = new SendTransaction();
-			for (int i = j; i < j+1000000; i++) {
+			for (int i = j; i < j+1; i++) {
 				System.out.println("i="+i);
 				// service.execute(new SendTransaction(i, credentials));
 				sendTransaction.sendTransactionFunc(i, credentials);
